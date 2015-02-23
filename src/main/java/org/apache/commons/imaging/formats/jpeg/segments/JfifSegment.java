@@ -49,31 +49,51 @@ public class JfifSegment extends Segment {
     public JfifSegment(final int marker, final int markerLength, final InputStream is) 
             throws ImageReadException, IOException {
         super(marker, markerLength);
-
+        boolean bJFXX = false;
         final byte[] signature = readBytes(is, JpegConstants.JFIF0_SIGNATURE.size());
         if (!JpegConstants.JFIF0_SIGNATURE.equals(signature)
                 && !JpegConstants.JFIF0_SIGNATURE_ALTERNATIVE.equals(signature)) {
         	if(!JpegConstants.JFXX0_SIGNATURE.equals(signature)){
         		throw new ImageReadException(
                     "Not a Valid JPEG File: missing JFIF string");
+        	}else{
+        		bJFXX = true;
         	}
         }
+        
+        if(bJFXX == false){
+	        jfifMajorVersion = readByte("JFIF_major_version", is,
+	                "Not a Valid JPEG File");
+	        jfifMinorVersion = readByte("JFIF_minor_version", is,
+	                "Not a Valid JPEG File");
+	        densityUnits = readByte("density_units", is, "Not a Valid JPEG File");
+	        xDensity = read2Bytes("x_density", is, "Not a Valid JPEG File", getByteOrder());
+	        yDensity = read2Bytes("y_density", is, "Not a Valid JPEG File", getByteOrder());
+	
+	        xThumbnail = readByte("x_thumbnail", is, "Not a Valid JPEG File");
+	        yThumbnail = readByte("y_thumbnail", is, "Not a Valid JPEG File");
+	        thumbnailSize = xThumbnail * yThumbnail;
+	        if (thumbnailSize > 0) {
+	            skipBytes(is, thumbnailSize,
+	                    "Not a Valid JPEG File: missing thumbnail");
+	
+	        }
+        }else{
+        	//read Thumbnail format 1
+        	jfifMajorVersion = readByte("JFIF_major_version", is,"Not a Valid JPEG File");
+ 	        jfifMinorVersion = 0; //readByte("JFIF_minor_version", is,"Not a Valid JPEG File");
+ 	        densityUnits = 1; //readByte("density_units", is, "Not a Valid JPEG File");
+ 	        xDensity = 72; //read2Bytes("x_density", is, "Not a Valid JPEG File", getByteOrder());
+ 	        yDensity = 72; //read2Bytes("y_density", is, "Not a Valid JPEG File", getByteOrder());
 
-        jfifMajorVersion = readByte("JFIF_major_version", is,
-                "Not a Valid JPEG File");
-        jfifMinorVersion = readByte("JFIF_minor_version", is,
-                "Not a Valid JPEG File");
-        densityUnits = readByte("density_units", is, "Not a Valid JPEG File");
-        xDensity = read2Bytes("x_density", is, "Not a Valid JPEG File", getByteOrder());
-        yDensity = read2Bytes("y_density", is, "Not a Valid JPEG File", getByteOrder());
-
-        xThumbnail = readByte("x_thumbnail", is, "Not a Valid JPEG File");
-        yThumbnail = readByte("y_thumbnail", is, "Not a Valid JPEG File");
-        thumbnailSize = xThumbnail * yThumbnail;
-        if (thumbnailSize > 0) {
-            skipBytes(is, thumbnailSize,
-                    "Not a Valid JPEG File: missing thumbnail");
-
+        	
+ 	        xThumbnail = readByte("x_thumbnail", is, "Not a Valid JPEG File");
+ 	        yThumbnail = readByte("y_thumbnail", is, "Not a Valid JPEG File");
+ 	        thumbnailSize = xThumbnail * yThumbnail;
+ 	        if (thumbnailSize > 0) {
+ 	            skipBytes(is, thumbnailSize,
+ 	                    "Not a Valid JPEG File: missing thumbnail");
+ 	        }
         }
 
         if (getDebug()) {
