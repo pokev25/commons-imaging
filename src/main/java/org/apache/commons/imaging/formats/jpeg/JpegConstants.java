@@ -33,6 +33,13 @@ public final class JpegConstants {
                     0x46, // F
                     0x0, //
             });
+    public static final BinaryConstant JFXX0_SIGNATURE = new BinaryConstant(
+            new byte[] { 0x4a, // J
+                    0x46, // F
+                    0x58, // X
+                    0x58, // X
+                    0x0, //
+            });    
     public static final BinaryConstant JFIF0_SIGNATURE_ALTERNATIVE = new BinaryConstant(
             new byte[] { 0x4a, // J
                     0x46, // F
