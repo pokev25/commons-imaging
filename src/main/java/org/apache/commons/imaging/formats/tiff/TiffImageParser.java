@@ -232,7 +232,7 @@ public class TiffImageParser extends ImageParser {
 
         // -------------------
 
-        final List<String> comments = new ArrayList<String>();
+        final List<String> comments = new ArrayList<>();
         final List<TiffField> entries = directory.entries;
         for (TiffField field : entries) {
             final String comment = field.toString();
@@ -259,8 +259,11 @@ public class TiffImageParser extends ImageParser {
 
         final ImageInfo.ColorType colorType = ImageInfo.ColorType.RGB;
 
-        final int compression = 0xffff & directory
-                .getSingleFieldValue(TiffTagConstants.TIFF_TAG_COMPRESSION);
+        final short[] compressionFieldValues = directory
+            .getFieldValue(TiffTagConstants.TIFF_TAG_COMPRESSION, false);
+        final short compressionFieldValue = compressionFieldValues != null ?
+            compressionFieldValues[0] : TIFF_COMPRESSION_UNCOMPRESSED_1;
+        final int compression = 0xffff & compressionFieldValue;
         ImageInfo.CompressionAlgorithm compressionAlgorithm;
 
         switch (compression) {
@@ -403,7 +406,7 @@ public class TiffImageParser extends ImageParser {
         final TiffContents contents = new TiffReader(isStrict(params))
                 .readDirectories(byteSource, true, formatCompliance);
 
-        final List<byte[]> result = new ArrayList<byte[]>();
+        final List<byte[]> result = new ArrayList<>();
         for (int i = 0; i < contents.directories.size(); i++) {
             final TiffDirectory directory = contents.directories.get(i);
             final List<ImageDataElement> dataElements = directory
@@ -474,7 +477,7 @@ public class TiffImageParser extends ImageParser {
         final TiffReader tiffReader = new TiffReader(true);
         final TiffContents contents = tiffReader.readDirectories(byteSource, true,
                 formatCompliance);
-        final List<BufferedImage> results = new ArrayList<BufferedImage>();
+        final List<BufferedImage> results = new ArrayList<>();
         for (int i = 0; i < contents.directories.size(); i++) {
             final TiffDirectory directory = contents.directories.get(i);
             final BufferedImage result = directory.getTiffImage(
@@ -552,7 +555,11 @@ public class TiffImageParser extends ImageParser {
 
         final int photometricInterpretation = 0xffff & directory.getSingleFieldValue(
                 TiffTagConstants.TIFF_TAG_PHOTOMETRIC_INTERPRETATION);
-        final int compression = 0xffff & directory.getSingleFieldValue(TiffTagConstants.TIFF_TAG_COMPRESSION);
+        final short[] compressionFieldValues = directory
+            .getFieldValue(TiffTagConstants.TIFF_TAG_COMPRESSION, false);
+        final short compressionFieldValue = compressionFieldValues != null ?
+                compressionFieldValues[0] : TIFF_COMPRESSION_UNCOMPRESSED_1;
+        final int compression = 0xffff & compressionFieldValue;
         final int width = directory.getSingleFieldValue(TiffTagConstants.TIFF_TAG_IMAGE_WIDTH);
         final int height = directory.getSingleFieldValue(TiffTagConstants.TIFF_TAG_IMAGE_LENGTH);      
         

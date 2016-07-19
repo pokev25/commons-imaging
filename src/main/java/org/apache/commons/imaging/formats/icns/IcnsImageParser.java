@@ -82,7 +82,7 @@ public class IcnsImageParser extends ImageParser {
     public ImageInfo getImageInfo(final ByteSource byteSource, Map<String, Object> params)
             throws ImageReadException, IOException {
         // make copy of params; we'll clear keys as we consume them.
-        params = (params == null) ? new HashMap<String, Object>() : new HashMap<String, Object>(params);
+        params = (params == null) ? new HashMap<String, Object>() : new HashMap<>(params);
 
         if (params.containsKey(PARAM_KEY_VERBOSE)) {
             params.remove(PARAM_KEY_VERBOSE);
@@ -112,7 +112,7 @@ public class IcnsImageParser extends ImageParser {
     public Dimension getImageSize(final ByteSource byteSource, Map<String, Object> params)
             throws ImageReadException, IOException {
         // make copy of params; we'll clear keys as we consume them.
-        params = (params == null) ? new HashMap<String, Object>() : new HashMap<String, Object>(params);
+        params = (params == null) ? new HashMap<String, Object>() : new HashMap<>(params);
 
         if (params.containsKey(PARAM_KEY_VERBOSE)) {
             params.remove(PARAM_KEY_VERBOSE);
@@ -234,7 +234,7 @@ public class IcnsImageParser extends ImageParser {
             is = byteSource.getInputStream();
             final IcnsHeader icnsHeader = readIcnsHeader(is);
 
-            final List<IcnsElement> icnsElementList = new ArrayList<IcnsElement>();
+            final List<IcnsElement> icnsElementList = new ArrayList<>();
             for (int remainingSize = icnsHeader.fileSize - 8; remainingSize > 0;) {
                 final IcnsElement icnsElement = readIcnsElement(is);
                 icnsElementList.add(icnsElement);
@@ -288,7 +288,7 @@ public class IcnsImageParser extends ImageParser {
     public void writeImage(final BufferedImage src, final OutputStream os, Map<String, Object> params)
             throws ImageWriteException, IOException {
         // make copy of params; we'll clear keys as we consume them.
-        params = (params == null) ? new HashMap<String, Object>() : new HashMap<String, Object>(params);
+        params = (params == null) ? new HashMap<String, Object>() : new HashMap<>(params);
 
         // clear format key.
         if (params.containsKey(PARAM_KEY_FORMAT)) {
@@ -314,36 +314,36 @@ public class IcnsImageParser extends ImageParser {
                     + src.getWidth() + " and height " + src.getHeight());
         }
 
-        final BinaryOutputStream bos = new BinaryOutputStream(os,
-                ByteOrder.BIG_ENDIAN);
-        bos.write4Bytes(ICNS_MAGIC);
-        bos.write4Bytes(4 + 4 + 4 + 4 + 4 * imageType.getWidth()
-                * imageType.getHeight() + 4 + 4 + imageType.getWidth()
-                * imageType.getHeight());
+        try (final BinaryOutputStream bos = new BinaryOutputStream(os,
+                ByteOrder.BIG_ENDIAN)) {
+            bos.write4Bytes(ICNS_MAGIC);
+            bos.write4Bytes(4 + 4 + 4 + 4 + 4 * imageType.getWidth()
+            * imageType.getHeight() + 4 + 4 + imageType.getWidth()
+            * imageType.getHeight());
 
-        bos.write4Bytes(imageType.getType());
-        bos.write4Bytes(4 + 4 + 4 * imageType.getWidth()
-                * imageType.getHeight());
-        for (int y = 0; y < src.getHeight(); y++) {
-            for (int x = 0; x < src.getWidth(); x++) {
-                final int argb = src.getRGB(x, y);
-                bos.write(0);
-                bos.write(argb >> 16);
-                bos.write(argb >> 8);
-                bos.write(argb);
+            bos.write4Bytes(imageType.getType());
+            bos.write4Bytes(4 + 4 + 4 * imageType.getWidth()
+            * imageType.getHeight());
+            for (int y = 0; y < src.getHeight(); y++) {
+                for (int x = 0; x < src.getWidth(); x++) {
+                    final int argb = src.getRGB(x, y);
+                    bos.write(0);
+                    bos.write(argb >> 16);
+                    bos.write(argb >> 8);
+                    bos.write(argb);
+                }
+            }
+
+            final IcnsType maskType = IcnsType.find8BPPMaskType(imageType);
+            bos.write4Bytes(maskType.getType());
+            bos.write4Bytes(4 + 4 + imageType.getWidth() * imageType.getWidth());
+            for (int y = 0; y < src.getHeight(); y++) {
+                for (int x = 0; x < src.getWidth(); x++) {
+                    final int argb = src.getRGB(x, y);
+                    bos.write(argb >> 24);
+                }
             }
         }
-
-        final IcnsType maskType = IcnsType.find8BPPMaskType(imageType);
-        bos.write4Bytes(maskType.getType());
-        bos.write4Bytes(4 + 4 + imageType.getWidth() * imageType.getWidth());
-        for (int y = 0; y < src.getHeight(); y++) {
-            for (int x = 0; x < src.getWidth(); x++) {
-                final int argb = src.getRGB(x, y);
-                bos.write(argb >> 24);
-            }
-        }
-        bos.close();
     }
 
     /**

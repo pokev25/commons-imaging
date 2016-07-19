@@ -57,7 +57,7 @@ public class IcoRoundtripTest extends IcoBaseTest {
         {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}
     };
 
-    private final Map<Integer,BitmapGenerator> generatorMap = new HashMap<Integer,BitmapGenerator>();
+    private final Map<Integer,BitmapGenerator> generatorMap = new HashMap<>();
 
     public IcoRoundtripTest() {
         generatorMap.put(1, new GeneratorFor1BitBitmaps());
@@ -74,218 +74,33 @@ public class IcoRoundtripTest extends IcoBaseTest {
     }
 
     private class GeneratorFor1BitBitmaps implements BitmapGenerator {
+        @Override
         public byte[] generateBitmap(final int foreground, final int background,
-                final int paletteSize) throws IOException, ImageWriteException {
-            final ByteArrayOutputStream byteArrayStream = new ByteArrayOutputStream();
-            final BinaryOutputStream bos = new BinaryOutputStream(byteArrayStream,
-                    ByteOrder.LITTLE_ENDIAN);
-            // Palette
-            bos.write3Bytes(background);
-            bos.write(0);
-            bos.write3Bytes(foreground);
-            bos.write(0);
-            for (int i = 2; i < paletteSize; i++) {
-                bos.write4Bytes(0);
-            }
-            // Image
-            for (int y = 15; y >= 0; y--) {
-                for (int x = 0; x < 16; x += 8) {
-                    bos.write(((0x1 & IMAGE[y][x]) << 7)
-                            | ((0x1 & IMAGE[y][x + 1]) << 6)
-                            | ((0x1 & IMAGE[y][x + 2]) << 5)
-                            | ((0x1 & IMAGE[y][x + 3]) << 4)
-                            | ((0x1 & IMAGE[y][x + 4]) << 3)
-                            | ((0x1 & IMAGE[y][x + 5]) << 2)
-                            | ((0x1 & IMAGE[y][x + 6]) << 1)
-                            | ((0x1 & IMAGE[y][x + 7]) << 0));
+ final int paletteSize)
+                throws IOException, ImageWriteException {
+            try (final ByteArrayOutputStream byteArrayStream = new ByteArrayOutputStream();
+                    final BinaryOutputStream bos = new BinaryOutputStream(byteArrayStream, ByteOrder.LITTLE_ENDIAN)) {
+                // Palette
+                bos.write3Bytes(background);
+                bos.write(0);
+                bos.write3Bytes(foreground);
+                bos.write(0);
+                for (int i = 2; i < paletteSize; i++) {
+                    bos.write4Bytes(0);
                 }
-                // Pad to multiple of 32 bytes
-                bos.write(0);
-                bos.write(0);
-            }
-            // Mask
-            for (int y = IMAGE.length - 1; y >= 0; y--) {
-                bos.write(0);
-                bos.write(0);
-                // Pad to 4 bytes:
-                bos.write(0);
-                bos.write(0);
-            }
-            bos.flush();
-            bos.close();
-            return byteArrayStream.toByteArray();
-        }
-    }
-
-    private class GeneratorFor4BitBitmaps implements BitmapGenerator {
-        public byte[] generateBitmap(final int foreground, final int background,
-                final int paletteSize) throws IOException, ImageWriteException {
-            final ByteArrayOutputStream byteArrayStream = new ByteArrayOutputStream();
-            final BinaryOutputStream bos = new BinaryOutputStream(byteArrayStream,
-                    ByteOrder.LITTLE_ENDIAN);
-            // Palette
-            bos.write3Bytes(background);
-            bos.write(0);
-            bos.write3Bytes(foreground);
-            bos.write(0);
-            for (int i = 2; i < paletteSize; i++) {
-                bos.write4Bytes(0);
-            }
-            // Image
-            for (int y = 15; y >= 0; y--) {
-                for (int x = 0; x < 16; x += 2) {
-                    bos.write(((0xf & IMAGE[y][x]) << 4)
-                            | (0xf & IMAGE[y][x + 1]));
-                }
-            }
-            // Mask
-            for (int y = IMAGE.length - 1; y >= 0; y--) {
-                bos.write(0);
-                bos.write(0);
-                // Pad to 4 bytes:
-                bos.write(0);
-                bos.write(0);
-            }
-            bos.flush();
-            bos.close();
-            return byteArrayStream.toByteArray();
-        }
-    }
-
-    private class GeneratorFor8BitBitmaps implements BitmapGenerator {
-        public byte[] generateBitmap(final int foreground, final int background,
-                final int paletteSize) throws IOException, ImageWriteException {
-            final ByteArrayOutputStream byteArrayStream = new ByteArrayOutputStream();
-            final BinaryOutputStream bos = new BinaryOutputStream(byteArrayStream,
-                    ByteOrder.LITTLE_ENDIAN);
-            // Palette
-            bos.write3Bytes(background);
-            bos.write(0);
-            bos.write3Bytes(foreground);
-            bos.write(0);
-            for (int i = 2; i < paletteSize; i++) {
-                bos.write4Bytes(0);
-            }
-            // Image
-            for (int y = 15; y >= 0; y--) {
-                for (int x = 0; x < 16; x++) {
-                    bos.write(IMAGE[y][x]);
-                }
-            }
-            // Mask
-            for (int y = IMAGE.length - 1; y >= 0; y--) {
-                bos.write(0);
-                bos.write(0);
-                // Pad to 4 bytes:
-                bos.write(0);
-                bos.write(0);
-            }
-            bos.flush();
-            bos.close();
-            return byteArrayStream.toByteArray();
-        }
-    }
-
-    private class GeneratorFor16BitBitmaps implements BitmapGenerator {
-        public byte[] generateBitmap(final int foreground, final int background,
-                final int paletteSize) throws IOException, ImageWriteException {
-            final ByteArrayOutputStream byteArrayStream = new ByteArrayOutputStream();
-            final BinaryOutputStream bos = new BinaryOutputStream(byteArrayStream,
-                    ByteOrder.LITTLE_ENDIAN);
-            // Palette
-            for (int i = 0; i < paletteSize; i++) {
-                bos.write4Bytes(0);
-            }
-            // Image
-            for (int y = 15; y >= 0; y--) {
-                for (int x = 0; x < 16; x++) {
-                    if (IMAGE[y][x] == 1) {
-                        bos.write2Bytes((0x1f & (foreground >> 3))
-                                | ((0x1f & (foreground >> 11)) << 5)
-                                | ((0x1f & (foreground >> 19)) << 10));
-                    } else {
-                        bos.write2Bytes((0x1f & (background >> 3))
-                                | ((0x1f & (background >> 11)) << 5)
-                                | ((0x1f & (background >> 19)) << 10));
+                // Image
+                for (int y = 15; y >= 0; y--) {
+                    for (int x = 0; x < 16; x += 8) {
+                        bos.write(((0x1 & IMAGE[y][x]) << 7) | ((0x1 & IMAGE[y][x + 1]) << 6)
+                                | ((0x1 & IMAGE[y][x + 2]) << 5) | ((0x1 & IMAGE[y][x + 3]) << 4)
+                                | ((0x1 & IMAGE[y][x + 4]) << 3) | ((0x1 & IMAGE[y][x + 5]) << 2)
+                                | ((0x1 & IMAGE[y][x + 6]) << 1) | ((0x1 & IMAGE[y][x + 7]) << 0));
                     }
+                    // Pad to multiple of 32 bytes
+                    bos.write(0);
+                    bos.write(0);
                 }
-            }
-            // Mask
-            for (int y = IMAGE.length - 1; y >= 0; y--) {
-                bos.write(0);
-                bos.write(0);
-                // Pad to 4 bytes:
-                bos.write(0);
-                bos.write(0);
-            }
-            bos.flush();
-            bos.close();
-            return byteArrayStream.toByteArray();
-        }
-    }
-
-    private class GeneratorFor24BitBitmaps implements BitmapGenerator {
-        public byte[] generateBitmap(final int foreground, final int background,
-                final int paletteSize) throws IOException, ImageWriteException {
-            final ByteArrayOutputStream byteArrayStream = new ByteArrayOutputStream();
-            final BinaryOutputStream bos = new BinaryOutputStream(byteArrayStream,
-                    ByteOrder.LITTLE_ENDIAN);
-            // Palette
-            for (int i = 0; i < paletteSize; i++) {
-                bos.write4Bytes(0);
-            }
-            // Image
-            for (int y = 15; y >= 0; y--) {
-                for (int x = 0; x < 16; x++) {
-                    if (IMAGE[y][x] == 1) {
-                        bos.write3Bytes(0xffffff & foreground);
-                    } else {
-                        bos.write3Bytes(0xffffff & background);
-                    }
-                }
-            }
-            // Mask
-            for (int y = IMAGE.length - 1; y >= 0; y--) {
-                bos.write(0);
-                bos.write(0);
-                // Pad to 4 bytes:
-                bos.write(0);
-                bos.write(0);
-            }
-            bos.flush();
-            bos.close();
-            return byteArrayStream.toByteArray();
-        }
-    }
-
-    private class GeneratorFor32BitBitmaps implements BitmapGenerator {
-        public byte[] generateBitmap(final int foreground, final int background,
-                final int paletteSize) throws IOException, ImageWriteException {
-            return generate32bitRGBABitmap(foreground, background, paletteSize,
-                    true);
-        }
-
-        public byte[] generate32bitRGBABitmap(final int foreground, final int background,
-                final int paletteSize, final boolean writeMask) throws IOException {
-            final ByteArrayOutputStream byteArrayStream = new ByteArrayOutputStream();
-            final BinaryOutputStream bos = new BinaryOutputStream(byteArrayStream,
-                    ByteOrder.LITTLE_ENDIAN);
-            // Palette
-            for (int i = 0; i < paletteSize; i++) {
-                bos.write4Bytes(0);
-            }
-            // Image
-            for (int y = 15; y >= 0; y--) {
-                for (int x = 0; x < 16; x++) {
-                    if (IMAGE[y][x] == 1) {
-                        bos.write4Bytes(foreground);
-                    } else {
-                        bos.write4Bytes(background);
-                    }
-                }
-            }
-            // Mask
-            if (writeMask) {
+                // Mask
                 for (int y = IMAGE.length - 1; y >= 0; y--) {
                     bos.write(0);
                     bos.write(0);
@@ -293,10 +108,190 @@ public class IcoRoundtripTest extends IcoBaseTest {
                     bos.write(0);
                     bos.write(0);
                 }
+                bos.flush();
+                return byteArrayStream.toByteArray();
             }
-            bos.flush();
-            bos.close();
-            return byteArrayStream.toByteArray();
+        }
+    }
+
+    private class GeneratorFor4BitBitmaps implements BitmapGenerator {
+        @Override
+        public byte[] generateBitmap(final int foreground, final int background, final int paletteSize)
+                throws IOException, ImageWriteException {
+            try (final ByteArrayOutputStream byteArrayStream = new ByteArrayOutputStream();
+                    final BinaryOutputStream bos = new BinaryOutputStream(byteArrayStream, ByteOrder.LITTLE_ENDIAN)) {
+                // Palette
+                bos.write3Bytes(background);
+                bos.write(0);
+                bos.write3Bytes(foreground);
+                bos.write(0);
+                for (int i = 2; i < paletteSize; i++) {
+                    bos.write4Bytes(0);
+                }
+                // Image
+                for (int y = 15; y >= 0; y--) {
+                    for (int x = 0; x < 16; x += 2) {
+                        bos.write(((0xf & IMAGE[y][x]) << 4) | (0xf & IMAGE[y][x + 1]));
+                    }
+                }
+                // Mask
+                for (int y = IMAGE.length - 1; y >= 0; y--) {
+                    bos.write(0);
+                    bos.write(0);
+                    // Pad to 4 bytes:
+                    bos.write(0);
+                    bos.write(0);
+                }
+                bos.flush();
+                return byteArrayStream.toByteArray();
+            }
+        }
+    }
+
+    private class GeneratorFor8BitBitmaps implements BitmapGenerator {
+        @Override
+        public byte[] generateBitmap(final int foreground, final int background, final int paletteSize)
+                throws IOException, ImageWriteException {
+            try (final ByteArrayOutputStream byteArrayStream = new ByteArrayOutputStream();
+                    final BinaryOutputStream bos = new BinaryOutputStream(byteArrayStream, ByteOrder.LITTLE_ENDIAN)) {
+                // Palette
+                bos.write3Bytes(background);
+                bos.write(0);
+                bos.write3Bytes(foreground);
+                bos.write(0);
+                for (int i = 2; i < paletteSize; i++) {
+                    bos.write4Bytes(0);
+                }
+                // Image
+                for (int y = 15; y >= 0; y--) {
+                    for (int x = 0; x < 16; x++) {
+                        bos.write(IMAGE[y][x]);
+                    }
+                }
+                // Mask
+                for (int y = IMAGE.length - 1; y >= 0; y--) {
+                    bos.write(0);
+                    bos.write(0);
+                    // Pad to 4 bytes:
+                    bos.write(0);
+                    bos.write(0);
+                }
+                bos.flush();
+                return byteArrayStream.toByteArray();
+            }
+        }
+    }
+
+    private class GeneratorFor16BitBitmaps implements BitmapGenerator {
+        @Override
+        public byte[] generateBitmap(final int foreground, final int background,
+ final int paletteSize)
+                throws IOException, ImageWriteException {
+            try (final ByteArrayOutputStream byteArrayStream = new ByteArrayOutputStream();
+                    final BinaryOutputStream bos = new BinaryOutputStream(byteArrayStream, ByteOrder.LITTLE_ENDIAN)) {
+                // Palette
+                for (int i = 0; i < paletteSize; i++) {
+                    bos.write4Bytes(0);
+                }
+                // Image
+                for (int y = 15; y >= 0; y--) {
+                    for (int x = 0; x < 16; x++) {
+                        if (IMAGE[y][x] == 1) {
+                            bos.write2Bytes((0x1f & (foreground >> 3)) | ((0x1f & (foreground >> 11)) << 5)
+                                    | ((0x1f & (foreground >> 19)) << 10));
+                        } else {
+                            bos.write2Bytes((0x1f & (background >> 3)) | ((0x1f & (background >> 11)) << 5)
+                                    | ((0x1f & (background >> 19)) << 10));
+                        }
+                    }
+                }
+                // Mask
+                for (int y = IMAGE.length - 1; y >= 0; y--) {
+                    bos.write(0);
+                    bos.write(0);
+                    // Pad to 4 bytes:
+                    bos.write(0);
+                    bos.write(0);
+                }
+                bos.flush();
+                return byteArrayStream.toByteArray();
+            }
+        }
+    }
+
+    private class GeneratorFor24BitBitmaps implements BitmapGenerator {
+        @Override
+        public byte[] generateBitmap(final int foreground, final int background, final int paletteSize)
+                throws IOException, ImageWriteException {
+            try (final ByteArrayOutputStream byteArrayStream = new ByteArrayOutputStream();
+                    final BinaryOutputStream bos = new BinaryOutputStream(byteArrayStream, ByteOrder.LITTLE_ENDIAN)) {
+                // Palette
+                for (int i = 0; i < paletteSize; i++) {
+                    bos.write4Bytes(0);
+                }
+                // Image
+                for (int y = 15; y >= 0; y--) {
+                    for (int x = 0; x < 16; x++) {
+                        if (IMAGE[y][x] == 1) {
+                            bos.write3Bytes(0xffffff & foreground);
+                        } else {
+                            bos.write3Bytes(0xffffff & background);
+                        }
+                    }
+                }
+                // Mask
+                for (int y = IMAGE.length - 1; y >= 0; y--) {
+                    bos.write(0);
+                    bos.write(0);
+                    // Pad to 4 bytes:
+                    bos.write(0);
+                    bos.write(0);
+                }
+                bos.flush();
+                return byteArrayStream.toByteArray();
+            }
+        }
+    }
+
+    private class GeneratorFor32BitBitmaps implements BitmapGenerator {
+        @Override
+        public byte[] generateBitmap(final int foreground, final int background,
+                final int paletteSize) throws IOException, ImageWriteException {
+            return generate32bitRGBABitmap(foreground, background, paletteSize,
+                    true);
+        }
+
+        public byte[] generate32bitRGBABitmap(final int foreground, final int background, final int paletteSize,
+                final boolean writeMask) throws IOException {
+            try (final ByteArrayOutputStream byteArrayStream = new ByteArrayOutputStream();
+                    final BinaryOutputStream bos = new BinaryOutputStream(byteArrayStream, ByteOrder.LITTLE_ENDIAN)) {
+                // Palette
+                for (int i = 0; i < paletteSize; i++) {
+                    bos.write4Bytes(0);
+                }
+                // Image
+                for (int y = 15; y >= 0; y--) {
+                    for (int x = 0; x < 16; x++) {
+                        if (IMAGE[y][x] == 1) {
+                            bos.write4Bytes(foreground);
+                        } else {
+                            bos.write4Bytes(background);
+                        }
+                    }
+                }
+                // Mask
+                if (writeMask) {
+                    for (int y = IMAGE.length - 1; y >= 0; y--) {
+                        bos.write(0);
+                        bos.write(0);
+                        // Pad to 4 bytes:
+                        bos.write(0);
+                        bos.write(0);
+                    }
+                }
+                bos.flush();
+                return byteArrayStream.toByteArray();
+            }
         }
     }
 

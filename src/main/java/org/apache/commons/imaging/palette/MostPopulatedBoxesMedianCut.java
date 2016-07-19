@@ -26,6 +26,7 @@ import org.apache.commons.imaging.ImageWriteException;
 
 public class MostPopulatedBoxesMedianCut implements MedianCut {
 
+    @Override
     public boolean performNextMedianCut(final List<ColorGroup> colorGroups,
             final boolean ignoreAlpha) throws ImageWriteException {
         int maxPoints = 0;
@@ -77,9 +78,9 @@ public class MostPopulatedBoxesMedianCut implements MedianCut {
                 }
             }
 
-            final List<ColorCount> lowerColors = new ArrayList<ColorCount>(
+            final List<ColorCount> lowerColors = new ArrayList<>(
                     colorGroup.colorCounts.subList(0, medianIndex + 1));
-            final List<ColorCount> upperColors = new ArrayList<ColorCount>(
+            final List<ColorCount> upperColors = new ArrayList<>(
                     colorGroup.colorCounts.subList(medianIndex + 1,
                             colorGroup.colorCounts.size()));
             if (lowerColors.isEmpty() || upperColors.isEmpty()) {
@@ -101,9 +102,9 @@ public class MostPopulatedBoxesMedianCut implements MedianCut {
         }
         
         Collections.sort(colorGroup.colorCounts, new ColorComparer(bestColorComponent));
-        final List<ColorCount> lowerColors = new ArrayList<ColorCount>(
+        final List<ColorCount> lowerColors = new ArrayList<>(
                 colorGroup.colorCounts.subList(0, bestMedianIndex + 1));
-        final List<ColorCount> upperColors = new ArrayList<ColorCount>(
+        final List<ColorCount> upperColors = new ArrayList<>(
                 colorGroup.colorCounts.subList(bestMedianIndex + 1,
                         colorGroup.colorCounts.size()));
         final ColorGroup lowerGroup = new ColorGroup(lowerColors, ignoreAlpha);
@@ -143,6 +144,7 @@ public class MostPopulatedBoxesMedianCut implements MedianCut {
             this.colorComponent = colorComponent;
         }
         
+        @Override
         public int compare(final ColorCount c1, final ColorCount c2) {
             switch (colorComponent) {
                 case ALPHA:

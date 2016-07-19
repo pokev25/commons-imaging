@@ -63,7 +63,7 @@ public class IptcUpdateTest extends IptcBaseTest {
     public void testRemove() throws Exception {
         final ByteSource byteSource = new ByteSourceFile(imageFile);
 
-        final Map<String, Object> params = new HashMap<String, Object>();
+        final Map<String, Object> params = new HashMap<>();
         final boolean ignoreImageData = isPhilHarveyTestImage(imageFile);
         params.put(ImagingConstants.PARAM_KEY_READ_THUMBNAILS, Boolean.valueOf(!ignoreImageData));
 
@@ -85,10 +85,9 @@ public class IptcUpdateTest extends IptcBaseTest {
     public File removeIptc(ByteSource byteSource) throws Exception {
         final File noIptcFile = createTempFile(imageFile.getName() + ".iptc.remove.", ".jpg");
 
-        OutputStream os = new FileOutputStream(noIptcFile);
-        os = new BufferedOutputStream(os);
-        new JpegIptcRewriter().removeIPTC(byteSource, os);
-        os.close();
+        try (OutputStream os = new BufferedOutputStream(new FileOutputStream(noIptcFile))) {
+            new JpegIptcRewriter().removeIPTC(byteSource, os);
+        }
         return noIptcFile;
     }
 
@@ -96,7 +95,7 @@ public class IptcUpdateTest extends IptcBaseTest {
     public void testInsert() throws Exception {
         final ByteSource byteSource = new ByteSourceFile(imageFile);
 
-        final Map<String, Object> params = new HashMap<String, Object>();
+        final Map<String, Object> params = new HashMap<>();
         final boolean ignoreImageData = isPhilHarveyTestImage(imageFile);
         params.put(ImagingConstants.PARAM_KEY_READ_THUMBNAILS, Boolean.valueOf(!ignoreImageData));
 
@@ -105,8 +104,8 @@ public class IptcUpdateTest extends IptcBaseTest {
 
         final File noIptcFile = removeIptc(byteSource);
 
-        final List<IptcBlock> newBlocks = new ArrayList<IptcBlock>();
-        final List<IptcRecord> newRecords = new ArrayList<IptcRecord>();
+        final List<IptcBlock> newBlocks = new ArrayList<>();
+        final List<IptcRecord> newRecords = new ArrayList<>();
 
         newRecords.add(new IptcRecord(IptcTypes.CITY, "Albany, NY"));
         newRecords.add(new IptcRecord(IptcTypes.CREDIT,
@@ -141,7 +140,7 @@ public class IptcUpdateTest extends IptcBaseTest {
     public void testUpdate() throws Exception {
         final ByteSource byteSource = new ByteSourceFile(imageFile);
 
-        final Map<String, Object> params = new HashMap<String, Object>();
+        final Map<String, Object> params = new HashMap<>();
         final boolean ignoreImageData = isPhilHarveyTestImage(imageFile);
         params.put(ImagingConstants.PARAM_KEY_READ_THUMBNAILS, Boolean.valueOf(!ignoreImageData));
 
@@ -149,7 +148,7 @@ public class IptcUpdateTest extends IptcBaseTest {
         assertNotNull(metadata);
 
         final List<IptcBlock> newBlocks = metadata.photoshopApp13Data.getNonIptcBlocks();
-        final List<IptcRecord> newRecords = new ArrayList<IptcRecord>();
+        final List<IptcRecord> newRecords = new ArrayList<>();
 
         newRecords.add(new IptcRecord(IptcTypes.CITY, "Albany, NY"));
         newRecords.add(new IptcRecord(IptcTypes.CREDIT,
@@ -188,7 +187,7 @@ public class IptcUpdateTest extends IptcBaseTest {
     public void testNoChangeUpdate() throws Exception {
         final ByteSource byteSource = new ByteSourceFile(imageFile);
 
-        final Map<String, Object> params = new HashMap<String, Object>();
+        final Map<String, Object> params = new HashMap<>();
         final boolean ignoreImageData = isPhilHarveyTestImage(imageFile);
         params.put(ImagingConstants.PARAM_KEY_READ_THUMBNAILS, Boolean.valueOf(!ignoreImageData));
 
@@ -197,7 +196,7 @@ public class IptcUpdateTest extends IptcBaseTest {
 
         final List<IptcBlock> newBlocks = metadata.photoshopApp13Data.getNonIptcBlocks();
         final List<IptcRecord> oldRecords = metadata.photoshopApp13Data.getRecords();
-        final List<IptcRecord> newRecords = new ArrayList<IptcRecord>();
+        final List<IptcRecord> newRecords = new ArrayList<>();
         for (final IptcRecord record : oldRecords) {
             if (record.iptcType != IptcTypes.CITY
                     && record.iptcType != IptcTypes.CREDIT) {

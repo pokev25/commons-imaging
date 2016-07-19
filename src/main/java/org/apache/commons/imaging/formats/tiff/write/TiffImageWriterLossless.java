@@ -47,11 +47,13 @@ import static org.apache.commons.imaging.formats.tiff.constants.TiffConstants.*;
 public class TiffImageWriterLossless extends TiffImageWriterBase {
     private final byte[] exifBytes;
     private static final Comparator<TiffElement> ELEMENT_SIZE_COMPARATOR = new Comparator<TiffElement>() {
+        @Override
         public int compare(final TiffElement e1, final TiffElement e2) {
             return e1.length - e2.length;
         }
     };
     private static final Comparator<TiffOutputItem> ITEM_SIZE_COMPARATOR = new Comparator<TiffOutputItem>() {
+        @Override
         public int compare(final TiffOutputItem e1, final TiffOutputItem e2) {
             return e1.getItemLength() - e2.getItemLength();
         }
@@ -75,7 +77,7 @@ public class TiffImageWriterLossless extends TiffImageWriterBase {
             final TiffContents contents = new TiffReader(false).readContents(
                     byteSource, params, formatCompliance);
 
-            final List<TiffElement> elements = new ArrayList<TiffElement>();
+            final List<TiffElement> elements = new ArrayList<>();
             // result.add(contents.header); // ?
 
             final List<TiffDirectory> directories = contents.directories;
@@ -113,7 +115,7 @@ public class TiffImageWriterLossless extends TiffImageWriterBase {
 
             // dumpElements(byteSource, elements);
 
-            final List<TiffElement> rewritableElements = new ArrayList<TiffElement>();
+            final List<TiffElement> rewritableElements = new ArrayList<>();
             {
                 final int TOLERANCE = 3;
                 // int last = TIFF_HEADER_SIZE;
@@ -152,7 +154,7 @@ public class TiffImageWriterLossless extends TiffImageWriterBase {
             throws IOException, ImageWriteException {
         // There are some fields whose address in the file must not change,
         // unless of course their value is changed. 
-        final Map<Integer, TiffOutputField> frozenFields = new HashMap<Integer, TiffOutputField>();
+        final Map<Integer, TiffOutputField> frozenFields = new HashMap<>();
         final TiffOutputField makerNoteField = outputSet.findField(ExifTagConstants.EXIF_TAG_MAKER_NOTE);
         if (makerNoteField != null && makerNoteField.getSeperateValue() != null) {
             frozenFields.put(ExifTagConstants.EXIF_TAG_MAKER_NOTE.tag, makerNoteField);
@@ -171,7 +173,7 @@ public class TiffImageWriterLossless extends TiffImageWriterBase {
                 return;
             }
         }
-        final Map<Long, TiffOutputField> frozenFieldOffsets = new HashMap<Long, TiffOutputField>();
+        final Map<Long, TiffOutputField> frozenFieldOffsets = new HashMap<>();
         for (final Map.Entry<Integer, TiffOutputField> entry : frozenFields.entrySet()) {
             final TiffOutputField frozenField = entry.getValue();
             if (frozenField.getSeperateValue().getOffset() != TiffOutputItem.UNDEFINED_VALUE) {
@@ -183,7 +185,7 @@ public class TiffImageWriterLossless extends TiffImageWriterBase {
 
         final List<TiffOutputItem> allOutputItems = outputSet
                 .getOutputItems(outputSummary);
-        final List<TiffOutputItem> outputItems = new ArrayList<TiffOutputItem>();
+        final List<TiffOutputItem> outputItems = new ArrayList<>();
         for (final TiffOutputItem outputItem : allOutputItems) {
             if (!frozenFieldOffsets.containsKey(outputItem.getOffset())) {
                 outputItems.add(outputItem);
@@ -204,7 +206,7 @@ public class TiffImageWriterLossless extends TiffImageWriterBase {
         long overflowIndex = exifBytes.length;
 
         // make copy.
-        final List<TiffElement> unusedElements = new ArrayList<TiffElement>(analysis);
+        final List<TiffElement> unusedElements = new ArrayList<>(analysis);
 
         // should already be in order of offset, but make sure.
         Collections.sort(unusedElements, TiffElement.COMPARATOR);
@@ -227,7 +229,7 @@ public class TiffImageWriterLossless extends TiffImageWriterBase {
         Collections.reverse(unusedElements);
 
         // make copy.
-        final List<TiffOutputItem> unplacedItems = new ArrayList<TiffOutputItem>(
+        final List<TiffOutputItem> unplacedItems = new ArrayList<>(
                 outputItems);
         Collections.sort(unplacedItems, ITEM_SIZE_COMPARATOR);
         Collections.reverse(unplacedItems);

@@ -58,10 +58,11 @@ import static org.apache.commons.imaging.formats.tiff.constants.TiffConstants.*;
 
 public final class TiffOutputDirectory extends TiffOutputItem {
     public final int type;
-    private final List<TiffOutputField> fields = new ArrayList<TiffOutputField>();
+    private final List<TiffOutputField> fields = new ArrayList<>();
     private final ByteOrder byteOrder;
     private TiffOutputDirectory nextDirectory;
     public static final Comparator<TiffOutputDirectory> COMPARATOR = new Comparator<TiffOutputDirectory>() {
+        @Override
         public int compare(final TiffOutputDirectory o1, final TiffOutputDirectory o2) {
             if (o1.type < o2.type) {
                 return -1;
@@ -410,7 +411,7 @@ public final class TiffOutputDirectory extends TiffOutputItem {
     }
 
     public List<TiffOutputField> getFields() {
-        return new ArrayList<TiffOutputField>(fields);
+        return new ArrayList<>(fields);
     }
 
     public void removeField(final TagInfo tagInfo) {
@@ -418,7 +419,7 @@ public final class TiffOutputDirectory extends TiffOutputItem {
     }
 
     public void removeField(final int tag) {
-        final List<TiffOutputField> matches = new ArrayList<TiffOutputField>();
+        final List<TiffOutputField> matches = new ArrayList<>();
         for (TiffOutputField field : fields) {
             if (field.tag == tag) {
                 matches.add(field);
@@ -464,6 +465,7 @@ public final class TiffOutputDirectory extends TiffOutputItem {
 
     public void sortFields() {
         final Comparator<TiffOutputField> comparator = new Comparator<TiffOutputField>() {
+            @Override
             public int compare(final TiffOutputField e1, final TiffOutputField e2) {
                 if (e1.tag != e2.tag) {
                     return e1.tag - e2.tag;
@@ -625,7 +627,7 @@ public final class TiffOutputDirectory extends TiffOutputItem {
 
         // --------------------------------------------------------------
 
-        final List<TiffOutputItem> result = new ArrayList<TiffOutputItem>();
+        final List<TiffOutputItem> result = new ArrayList<>();
         result.add(this);
         sortFields();
 

@@ -45,7 +45,16 @@ The <action> type attribute can be add,update,fix,remove.
   </properties>
   <body>
 
-    <release version="1.0" date="TBA" description="TBA">
+    <release version="1.0" date="TBA" description="First major release">
+      <action issue="IMAGING-176" dev="britter" type="fix" due-to="Gabriel Axel">
+        TiffImageParser.getImageInfo() throws exception when "Compression" field is missing.
+      </action>
+      <action issue="IMAGING-178" dev="britter" type="fix" due-to="emopers">
+        PnmImageParser does not check the validity of input PAM header.
+      </action>
+      <action issue="IMAGING-184" dev="ggregory" type="update">
+        Update platform from Java 5 to 7
+      </action>
       <action issue="IMAGING-112" dev="britter" type="update" due-to="Xavier Dury">
         JpegIptcRewriter.removeIPTC() does not remove all metadata
       </action>

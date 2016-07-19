@@ -21,7 +21,7 @@ import java.util.List;
 
 public class GenericImageMetadata implements ImageMetadata {
     private static final String NEWLINE = System.getProperty("line.separator");
-    private final List<ImageMetadataItem> items = new ArrayList<ImageMetadataItem>();
+    private final List<ImageMetadataItem> items = new ArrayList<>();
 
     public void add(final String keyword, final String text) {
         add(new GenericImageMetadataItem(keyword, text));
@@ -31,8 +31,9 @@ public class GenericImageMetadata implements ImageMetadata {
         items.add(item);
     }
 
+    @Override
     public List<? extends ImageMetadataItem> getItems() {
-        return new ArrayList<ImageMetadataItem>(items);
+        return new ArrayList<>(items);
     }
 
     @Override
@@ -40,6 +41,7 @@ public class GenericImageMetadata implements ImageMetadata {
         return toString(null);
     }
 
+    @Override
     public String toString(String prefix) {
         if (null == prefix) {
             prefix = "";
@@ -85,6 +87,7 @@ public class GenericImageMetadata implements ImageMetadata {
             return toString(null);
         }
 
+        @Override
         public String toString(final String prefix) {
             final String result = keyword + ": " + text;
             if (null != prefix) {

@@ -31,7 +31,7 @@ import org.apache.commons.imaging.common.BufferedImageFactory;
 public class ImageReadExample {
     public static BufferedImage imageReadExample(final File file)
             throws ImageReadException, IOException {
-        final Map<String, Object> params = new HashMap<String, Object>();
+        final Map<String, Object> params = new HashMap<>();
 
         // set optional parameters if you like
         params.put(ImagingConstants.BUFFERED_IMAGE_FACTORY,
@@ -48,6 +48,7 @@ public class ImageReadExample {
     public static class ManagedImageBufferedImageFactory implements
             BufferedImageFactory {
 
+        @Override
         public BufferedImage getColorBufferedImage(final int width, final int height,
                 final boolean hasAlpha) {
             final GraphicsEnvironment ge = GraphicsEnvironment
@@ -58,6 +59,7 @@ public class ImageReadExample {
                     Transparency.TRANSLUCENT);
         }
 
+        @Override
         public BufferedImage getGrayscaleBufferedImage(final int width, final int height,
                 final boolean hasAlpha) {
             return getColorBufferedImage(width, height, hasAlpha);

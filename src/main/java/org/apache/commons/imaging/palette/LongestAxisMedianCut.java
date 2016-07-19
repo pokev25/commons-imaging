@@ -25,6 +25,7 @@ import org.apache.commons.imaging.ImageWriteException;
 
 public class LongestAxisMedianCut implements MedianCut {
     private static final Comparator<ColorGroup> COMPARATOR = new Comparator<ColorGroup>() {
+        @Override
         public int compare(final ColorGroup cg1, final ColorGroup cg2) {
             if (cg1.maxDiff == cg2.maxDiff) {
                 return cg2.diffTotal - cg1.diffTotal;
@@ -33,6 +34,7 @@ public class LongestAxisMedianCut implements MedianCut {
         }
     };
 
+    @Override
     public boolean performNextMedianCut(final List<ColorGroup> colorGroups, final boolean ignoreAlpha)
             throws ImageWriteException {
         Collections.sort(colorGroups, COMPARATOR);
@@ -61,6 +63,7 @@ public class LongestAxisMedianCut implements MedianCut {
             final List<ColorGroup> colorGroups, final boolean ignoreAlpha) throws ImageWriteException {
 
         final Comparator<ColorCount> comp = new Comparator<ColorCount>() {
+            @Override
             public int compare(final ColorCount c1, final ColorCount c2) {
                 switch (mode) {
                     case ALPHA:
@@ -105,15 +108,15 @@ public class LongestAxisMedianCut implements MedianCut {
         }
 
         colorGroups.remove(colorGroup);
-        final List<ColorCount> colorCounts1 = new ArrayList<ColorCount>(
+        final List<ColorCount> colorCounts1 = new ArrayList<>(
                 colorGroup.colorCounts.subList(0, medianIndex + 1));
-        final List<ColorCount> colorCounts2 = new ArrayList<ColorCount>(
+        final List<ColorCount> colorCounts2 = new ArrayList<>(
                 colorGroup.colorCounts.subList(medianIndex + 1,
                         colorGroup.colorCounts.size()));
 
-        ColorGroup less = new ColorGroup(new ArrayList<ColorCount>(colorCounts1), ignoreAlpha);
+        ColorGroup less = new ColorGroup(new ArrayList<>(colorCounts1), ignoreAlpha);
         colorGroups.add(less);
-        ColorGroup more = new ColorGroup(new ArrayList<ColorCount>(colorCounts2), ignoreAlpha);
+        ColorGroup more = new ColorGroup(new ArrayList<>(colorCounts2), ignoreAlpha);
         colorGroups.add(more);
 
         final ColorCount medianValue = colorGroup.colorCounts.get(medianIndex);

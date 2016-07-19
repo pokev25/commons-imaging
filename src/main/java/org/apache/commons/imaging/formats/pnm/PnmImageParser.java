@@ -157,18 +157,28 @@ public class PnmImageParser extends ImageParser {
                 final String type = tokenizer.nextToken();
                 if ("WIDTH".equals(type)) {
                     seenWidth = true;
+                    if(!tokenizer.hasMoreTokens())
+                        throw new ImageReadException("PAM header has no WIDTH value");
                     width = Integer.parseInt(tokenizer.nextToken());
                 } else if ("HEIGHT".equals(type)) {
                     seenHeight = true;
+                    if(!tokenizer.hasMoreTokens())
+                        throw new ImageReadException("PAM header has no HEIGHT value");
                     height = Integer.parseInt(tokenizer.nextToken());
                 } else if ("DEPTH".equals(type)) {
                     seenDepth = true;
+                    if(!tokenizer.hasMoreTokens())
+                        throw new ImageReadException("PAM header has no DEPTH value");
                     depth = Integer.parseInt(tokenizer.nextToken());
                 } else if ("MAXVAL".equals(type)) {
                     seenMaxVal = true;
+                    if(!tokenizer.hasMoreTokens())
+                        throw new ImageReadException("PAM header has no MAXVAL value");
                     maxVal = Integer.parseInt(tokenizer.nextToken());
                 } else if ("TUPLTYPE".equals(type)) {
                     seenTupleType = true;
+                    if(!tokenizer.hasMoreTokens())
+                        throw new ImageReadException("PAM header has no TUPLTYPE value");
                     tupleType.append(tokenizer.nextToken());
                 } else if ("ENDHDR".equals(type)) {
                     break;
@@ -243,7 +253,7 @@ public class PnmImageParser extends ImageParser {
             throw new ImageReadException("PNM: Couldn't read Header");
         }
 
-        final List<String> comments = new ArrayList<String>();
+        final List<String> comments = new ArrayList<>();
 
         final int bitsPerPixel = info.getBitDepth() * info.getNumComponents();
         final ImageFormat format = info.getImageType();
@@ -356,9 +366,9 @@ public class PnmImageParser extends ImageParser {
 
         // make copy of params; we'll clear keys as we consume them.
         if (params != null) {
-            params = new HashMap<String, Object>(params);
+            params = new HashMap<>(params);
         } else {
-            params = new HashMap<String, Object>();
+            params = new HashMap<>();
         }
 
         // clear format key.

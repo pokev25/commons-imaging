@@ -316,6 +316,7 @@ class PngWriter {
             this.palette = palette;
         }
         
+        @Override
         public int getEntry(final int index) {
             if (index == 0) {
                 return 0x00000000;
@@ -323,10 +324,12 @@ class PngWriter {
             return palette.getEntry(index - 1);
         }
         
+        @Override
         public int length() {
             return 1 + palette.length();
         }
         
+        @Override
         public int getPaletteIndex(final int rgb) throws ImageWriteException {
             if (rgb == 0x00000000) {
                 return 0;
@@ -369,7 +372,7 @@ class PngWriter {
     public void writeImage(final BufferedImage src, final OutputStream os, Map<String, Object> params)
             throws ImageWriteException, IOException {
         // make copy of params; we'll clear keys as we consume them.
-        params = new HashMap<String, Object>(params);
+        params = new HashMap<>(params);
 
         // clear format key.
         if (params.containsKey(ImagingConstants.PARAM_KEY_FORMAT)) {
@@ -380,7 +383,7 @@ class PngWriter {
             params.remove(ImagingConstants.PARAM_KEY_VERBOSE);
         }
 
-        final Map<String, Object> rawParams = new HashMap<String, Object>(params);
+        final Map<String, Object> rawParams = new HashMap<>(params);
         if (params.containsKey(PngConstants.PARAM_KEY_PNG_FORCE_TRUE_COLOR)) {
             params.remove(PngConstants.PARAM_KEY_PNG_FORCE_TRUE_COLOR);
         }
